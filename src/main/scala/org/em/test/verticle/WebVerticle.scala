@@ -3,6 +3,7 @@ package org.em.test.verticle
 import io.vertx.lang.scala.ScalaVerticle
 import io.vertx.lang.scala.json.JsonObject
 import io.vertx.scala.core.MultiMap
+import io.vertx.scala.core.eventbus.Message
 import io.vertx.scala.core.http.ServerWebSocket
 import io.vertx.scala.ext.web.{Router, RoutingContext}
 import io.vertx.scala.ext.web.handler.{BodyHandler, CookieHandler}
@@ -59,26 +60,40 @@ class WebVerticle extends ScalaVerticle {
       if (!websocket.path().contains("ws")) {
         websocket.reject(400)
       }
-      websocket.drainHandler(_ => {
-        // todo
-        ws(websocket, "", new JsonObject())
+      websocket.textMessageHandler(msg => {
+        ws(websocket, new JsonObject(msg).put("address",websocket.textHandlerID()))
       })
+
       websocket.closeHandler(_ => {
         // todo
-        ws(websocket, "", new JsonObject())
+        wsClose(new JsonObject("{\"type\":1}").put("address",websocket.textHandlerID()))
       })
     }).listenFuture(8080).onComplete {
       case Success(result) => println(s"Server is now listening!/n result:$result")
       case Failure(cause) => println(s"$cause")
     }
 
+
+
   }
 
-  private def ws(websocket: ServerWebSocket, address: String, message: JsonObject): Unit = {
+  private def ws(websocket: ServerWebSocket, message: JsonObject, address: String = ScalaVerticle.nameForVerticle[WSVerticle2]): Unit = {
     vertx.eventBus().sendFuture[JsonObject](address, message).onComplete {
-      case Success(result) => websocket.writeTextMessage(result.body().getString(""))
+      case Success(result) => success(websocket, result)
       case Failure(cause) => websocket.writeTextMessage(cause.getMessage)
     }
+  }
+
+  private def success(websocket: ServerWebSocket, result: Message[JsonObject]) = {
+    if (result.body().getInteger("sendType")==0){
+
+    }else{
+      websocket.writeTextMessage("ojbk")
+    }
+  }
+
+  private def wsClose(message: JsonObject, address: String = ScalaVerticle.nameForVerticle[WSVerticle2]): Unit = {
+    vertx.eventBus().send(address, message)
   }
 
   override def stop(): Unit = super.stop()

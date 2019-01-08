@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div>
+    <input type="text" id="msg">
+    <button onclick="send()">submit</button>
+</div>
+
+</body>
+<script>
+    var ws = new WebSocket("ws://localhost:8080/ws");
+
+    var templateData = {
+      "type":0,
+      "data":{}
+    };
+
+    ws.onopen = function(evt) {
+        console.log("Connection open ...");
+    };
+
+    ws.onmessage = function(evt) {
+        console.log( "Received Message: " + evt.data);
+        // ws.close();
+    };
+
+    ws.onclose = function(evt) {
+        console.log("Connection closed.");
+    };
+
+    function send() {
+        templateData.data = document.getElementById("msg").value;
+        ws.send(JSON.stringify(templateData))
+    }
+</script>
+</html>
