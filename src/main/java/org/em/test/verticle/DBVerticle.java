@@ -15,10 +15,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @description mongoDB
+ * @author ximan.huang
+ * @date 2018/12/24 17:20
+ */
 public class DBVerticle extends AbstractVerticle {
 
     private MongoClient mongoClient;
     private Map<String, Object> map = new HashMap<>();
+    private static final String KEY = "key";
 
     @Override
     public void start() throws Exception {
@@ -26,11 +32,11 @@ public class DBVerticle extends AbstractVerticle {
         mapInit();
         vertx.eventBus().<JsonObject>consumer(this.getClass().getName(), msg -> {
             JsonObject body = msg.body();
-            if (body.isEmpty() || !body.containsKey("key")) {
+            if (body.isEmpty() || !body.containsKey(KEY)) {
                 msg.reply("No such person");
                 return;
             }
-            String key = body.getString("key");
+            String key = body.getString(KEY);
             msg.reply(key + " : " + map.get(key));
         });
         System.out.println("DBVerticle over");

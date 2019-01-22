@@ -14,11 +14,12 @@ import java.util.Map;
 public class WSVerticle extends AbstractVerticle {
 
     private Map<String, JsonObject> map = Maps.newHashMap();
+    private static final String WS_PATH = "ws";
 
     @Override
     public void start() throws Exception {
         vertx.createHttpServer().websocketHandler(websocket->{
-           if (!websocket.path().contains("ws")){
+           if (!websocket.path().contains(WS_PATH)){
                websocket.reject(400);
            }
            websocket.textMessageHandler(msg->{

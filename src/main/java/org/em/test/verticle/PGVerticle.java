@@ -42,16 +42,6 @@ public class PGVerticle extends AbstractVerticle {
         });
     }
 
-    private void query(){
-        // Create the pool from the environment variables
-        PgPool pool = PgClient.pool();
-
-        // Create the connection from the environment variables
-        PgClient.connect(vertx, res -> {
-            // Handling your connection
-        });
-    }
-
     @Override
     public void stop() throws Exception {
         super.stop();
